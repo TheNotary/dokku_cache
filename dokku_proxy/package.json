@@ -6,7 +6,7 @@
     "url": "git://github.com/TheNotary/dokku_proxy.git"
   },
 
-  "version": "0.0.0",
+  "version": "0.0.1",
   "engines": {
     "node": "5.11.0",
     "npm": "3.8.6"
