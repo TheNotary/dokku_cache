@@ -1,10 +1,8 @@
 # dokku_cache
 
-TODO:  
+By running this app (http proxy + git daemon) on some host and creating 2 env vars in your dokku app, you'll be able to push to that app without having to be connected to the internet and wasting bandwidth.  Plus the request that the ruby/ node buildpacks make for node will go over https instead of insecurely... though I should point out, this app's proxy must be connected to via http so keep it on your secure LAN or localhost!  
 
-  - Add a DL latest function to populate all the data I painstakingly dropped into place
-  - Add Proxying functionality?????? instead of the above?
-
+This has only been testing on rails apps, it will very likely need tweaking to work with, say, go apps.  
 
 ## Concept
 
@@ -41,9 +39,9 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
   docker run -v `pwd`:/usr/src/app -p 8000:8000 -p 9418:9418 john/dokku_cache
 ```
 
+#### Change out Buildpack
+
+So the buildpack is how your app sets up the environment for the app you're pushing to dokku.  In the case of pushing a rails app, this means installing ruby and node.  The buildpack is stored at `bp-ruby.git/` so if that thing's not to your liking, change it up.  
+
 To see notes on manually running things, see MANUAL.md
-
-Try http://127.0.0.1:8000/heroku-buildpack-ruby/cedar-14/ruby-2.2.4.tgz to test...
-
-
 
