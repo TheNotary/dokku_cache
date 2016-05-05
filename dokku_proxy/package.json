@@ -14,11 +14,12 @@
 
   "main" : "./lib/dokku_proxy.js",
   "bin": {
-      "dokku_proxy": "./bin/dokku_proxy"
+    "dokku_proxy": "./bin/dokku_proxy"
   },
 
   "dependencies": {
-    "http-proxy": "*"
+    "http-proxy": "*",
+    "mkpath": "*"
   },
 
   "scripts": {

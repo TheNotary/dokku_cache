@@ -1,60 +1,29 @@
+// Configs
 var port = 8000;
 
+// Dependencies
 var path = require("path"),
     fs = require("fs"),
     appRoot = path.resolve(__dirname + "/.."),
     pjson = require(appRoot + '/package.json'),
+    mkpath = require('mkpath'),
     http = require('http'),
     https = require('https');
 
-//
-// Create a proxy server with custom application logic
-//
-// var proxy = httpProxy.createProxyServer({});
 
-//
-// Create your custom server and just call `proxy.web()` to proxy
-// a web request to the target passed in the options
-// also you can use `proxy.ws()` to proxy a websockets request
-//
 var server = http.createServer(function(req, response) {
-  // You can define here your custom logic to handle the request
-  // and then proxy the request.
-
-
   // display version info
   if (req.url == "/version") {
     response.end(pjson.version);
     return;
   }
 
-
-  // Assume that we don't have a file and need to DL it
-
   // proxy for https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/cedar-14/ruby-2.2.4.tgz
-  if (req.url.lastIndexOf("/heroku-buildpack-ruby", 0) === 0) {
-    var filePath = path.join(appRoot, '../', req.url);
+  var filePath = path.join(appRoot, '../', req.url);
+  var readStream = fs.createReadStream(filePath).
 
-    // Search for file being requested locally and serve that
-    path.exists(filePath, function(exists) {
-      if(!exists) {
-        // request the file from upstream to the fs and pipe through response if we don't have the cache
-        var wstream = fs.createWriteStream(filePath);
-
-        var request = https.get("https://s3-external-1.amazonaws.com/" + req.url).on('response', function(originResponse) {
-          response.writeHead(200, {
-            'Content-Type': originResponse.headers['content-type'],
-            'Content-Length': originResponse.headers['content-length']
-          });
-
-          originResponse.pipe(response);  // write to network
-          originResponse.pipe(wstream);   // write to file system
-        });
-
-        return;
-      }
-
-      // Else, serve the file
+    // Serve the file from disk if we can open it
+    on('open', function() {
       var stat = fs.statSync(filePath);
 
       response.writeHead(200, {
@@ -63,20 +32,42 @@ var server = http.createServer(function(req, response) {
         'Content-Length': stat.size
       });
 
-      var readStream = fs.createReadStream(filePath);
-
       readStream.pipe(response);
+    }).
 
-      debugger;
-      return;
+    // request the file from upstream to the fs and pipe through response if we don't have the cache
+    on('error', function(err) {
+      if (err.code === 'ENOENT') {
+
+        // Determine where to pull the file from
+        var originDomain;
+        if (req.url.lastIndexOf("/heroku-buildpack-ruby", 0) === 0)
+          originDomain = "https://s3-external-1.amazonaws.com/";
+        else if (req.url.lastIndexOf("/node", 0) === 0)
+          originDomain = "https://s3pository.heroku.com/";
+
+        var request = https.get(originDomain + req.url).on('response', function(originResponse) {
+          response.writeHead(200, {
+            'Content-Type': originResponse.headers['content-type'],
+            'Content-Length': originResponse.headers['content-length']
+          });
+
+          originResponse.pipe(response);  // write to network
+
+          mkpath(path.dirname(filePath), function (err) {
+            if (err) throw err;
+            console.log("Cache Miss: Piping stream to disk.");
+            var wstream = fs.createWriteStream(filePath);
+            originResponse.pipe(wstream);   // write to file system
+          });
+        });
+      }
+      else {
+        throw err;
+      }
     });
-
-  }
-  else if (req.url.lastIndexOf("/node", 0) === 0) {
-    // Do this DRYly...
-  }
 
 });
 
-console.log("listening on port " + port)
+console.log("listening on port " + port);
 server.listen(port);
