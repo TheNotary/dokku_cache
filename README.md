@@ -38,7 +38,7 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
   docker build -t john/dokku_cache .
 
   # Run the image
-  docker run -v .:/usr/src/app -p 8001:8000 -p 9418:9418 john/dokku_cache
+  docker run -v `pwd`:/usr/src/app -p 8000:8000 -p 9418:9418 john/dokku_cache
 ```
 
 To see notes on manually running things, see MANUAL.md
