@@ -43,7 +43,7 @@ COPY . /usr/src/app
 
 WORKDIR /usr/src/app/dokku_proxy
 
-RUN npm install -g
+RUN npm install
 
 # start servers
 CMD [ "git", "daemon", "--base-path=/usr/src/app/bp-ruby.git/", "--listen=0.0.0.0", "--detach" ]
