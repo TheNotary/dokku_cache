@@ -4,6 +4,7 @@ By running this app (http proxy + git daemon) on some host and creating 2 env va
 
 This has only been testing on rails apps, it will very likely need tweaking to work with, say, go apps.  
 
+
 ## Concept
 
 Ordinarily when you deploy to dokku (consider a rails app), the following online activity take place: 
@@ -19,8 +20,9 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
 
 ## Usage
 
-
 #### Set up the proxy info for the dokku app
+
+`DOKKU_APP_NAME` should be the name of the dokku app you'd like to hook into this proxy-mi-jigger.  `IP_ADDRESS` should be the IP of the server running this docker app, and from the perspective of the dokku server.
 
 ```
   export DOKKU_APP_NAME=app_name
@@ -39,9 +41,12 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
   docker run -v `pwd`:/usr/src/app -p 8000:8000 -p 9418:9418 john/dokku_cache
 ```
 
+
 #### Change out Buildpack
 
 So the buildpack is how your app sets up the environment for the app you're pushing to dokku.  In the case of pushing a rails app, this means installing ruby and node.  The buildpack is stored at `bp-ruby.git/` so if that thing's not to your liking, change it up.  
+
+#### Misc
 
 To see notes on manually running things, see MANUAL.md
 
