@@ -43,5 +43,7 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
 
 To see notes on manually running things, see MANUAL.md
 
+Try http://127.0.0.1:8000/heroku-buildpack-ruby/cedar-14/ruby-2.2.4.tgz to test...
+
 
 

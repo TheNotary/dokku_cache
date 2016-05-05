@@ -20,20 +20,19 @@ var path = require("path"),
 var server = http.createServer(function(req, response) {
   // You can define here your custom logic to handle the request
   // and then proxy the request.
-  
+
 
   // display version info
   if (req.url == "/version") {
-    response.end(pjson.version);  
+    response.end(pjson.version);
     return;
   }
 
 
-  // Assume that we don't have a file and need to DL it 
+  // Assume that we don't have a file and need to DL it
 
   // proxy for https://s3-external-1.amazonaws.com/heroku-buildpack-ruby/cedar-14/ruby-2.2.4.tgz
-  if (req.url.indexOf("heroku-buildpack-ruby") > -1) {
-
+  if (req.url.lastIndexOf("/heroku-buildpack-ruby", 0) === 0) {
     var filePath = path.join(appRoot, '../', req.url);
 
     // Search for file being requested locally and serve that
@@ -42,19 +41,14 @@ var server = http.createServer(function(req, response) {
         // request the file from upstream to the fs and pipe through response if we don't have the cache
         var wstream = fs.createWriteStream(filePath);
 
-        var request = https.get("https://s3-external-1.amazonaws.com/" + req.url, function(originResponse) {
-          var cType = originResponse.headers['content-type'];
-          var cLength = originResponse.headers['content-length'];
-
-          /*
+        var request = https.get("https://s3-external-1.amazonaws.com/" + req.url).on('response', function(originResponse) {
           response.writeHead(200, {
-            'Content-Type': cType,
-            'Content-Length': cLength
+            'Content-Type': originResponse.headers['content-type'],
+            'Content-Length': originResponse.headers['content-length']
           });
-          */
 
-          originResponse.pipe(response);
-          originResponse.pipe(wstream);
+          originResponse.pipe(response);  // write to network
+          originResponse.pipe(wstream);   // write to file system
         });
 
         return;
@@ -63,24 +57,26 @@ var server = http.createServer(function(req, response) {
       // Else, serve the file
       var stat = fs.statSync(filePath);
 
-      /*
       response.writeHead(200, {
         'Content-Type': 'application/x-gtar',
         //'Content-Type': 'application/x-gzip',
         'Content-Length': stat.size
       });
-      */
 
       var readStream = fs.createReadStream(filePath);
 
       readStream.pipe(response);
+
+      debugger;
       return;
     });
 
+  }
+  else if (req.url.lastIndexOf("/node", 0) === 0) {
+    // Do this DRYly...
   }
 
 });
 
 console.log("listening on port " + port)
 server.listen(port);
-
