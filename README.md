@@ -7,7 +7,7 @@ This has only been testing on rails apps, it will very likely need tweaking to w
 
 ## Concept
 
-Ordinarily when you deploy to dokku (consider a rails app), the following online activity take place: 
+Ordinarily when you deploy to dokku (consider a rails app) the following online activity take place: 
 
  - It first goes online to look up any custom build packs...
  
@@ -27,7 +27,7 @@ Now if you use my custom ruby buildpack which avoids the standard node proxy (ht
 ```
   export DOKKU_APP_NAME=app_name
   export IP_ADDRESS="192.168.0.145"
-  dokku config:set ${DOKKU_APP_NAME} BUILDPACK_URL=git://${IP_ADDRESS}/ BUILDPACK_VENDOR_URL="http://${IP_ADDRESS}/heroku-buildpack-ruby/"
+  dokku config:set ${DOKKU_APP_NAME} BUILDPACK_URL=git://${IP_ADDRESS}/ BUILDPACK_VENDOR_URL="http://${IP_ADDRESS}:8000/heroku-buildpack-ruby/" VENDOR_URL="http://${IP_ADDRESS}:8000/"
 ```
 
 

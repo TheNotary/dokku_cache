@@ -46,6 +46,7 @@ WORKDIR /usr/src/app/dokku_proxy
 RUN npm install
 
 # start servers
+# git daemon --base-path=. --listen=0.0.0.0
 CMD [ "git", "daemon", "--base-path=/usr/src/app/bp-ruby.git/", "--listen=0.0.0.0", "--detach" ]
 # CMD [ "python", "-m", "SimpleHTTPServer"]
 CMD [ "node", "lib/dokku_proxy.js" ]

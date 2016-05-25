@@ -62,6 +62,7 @@ var server = http.createServer(function(req, response) {
         });
       }
       else {
+        console.log("we hit an error while requesting a file from the Internet:  " + req.url);
         throw err;
       }
     });
