@@ -83,3 +83,16 @@ function pickDomainToPullFrom(url) {
   });
   return result;
 }
+
+
+// Hackish!!!!!
+// Because it's really hard to tell Docker to run two servers, I spawn a git-daemon server from within the web server...
+const spawn = require('child_process').spawn;
+const gitDaemon = spawn('git', ['daemon', '--base-path=/usr/src/app/bp-ruby.git', '--listen=0.0.0.0', '/usr/src/app/bp-ruby.git'] );
+// const gitDaemon = spawn('ls', ['-h']);
+
+gitDaemon.stdout.on('data', (data) => {
+  console.log(`stdout: ${data}`);
+});
+
+
